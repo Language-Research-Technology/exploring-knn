@@ -30,7 +30,7 @@ class ImageDataset(Dataset):
             idx = idx.tolist()
         #! figure out indexing multiple?
 
-        print("TAKING INDEX", idx)
+        # print("TAKING INDEX", idx)
 
         with Image.open(os.path.join(self.root_dir,
                                      self.filenames[idx])) as img:
