@@ -1,0 +1,14 @@
+imgbeddings==0.1.0
+matplotlib==3.10.0
+networkx==2.8.7
+numpy==2.2.2
+pandas==2.2.3
+Pillow==11.1.0
+plotly==5.15.0
+pynndescent==0.5.13
+scikit_learn==1.6.1
+scipy==1.15.1
+seaborn==0.13.2
+torch==2.5.1
+torchvision==0.20.1
+tqdm==4.66.5
