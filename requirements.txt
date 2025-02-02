@@ -1,5 +1,5 @@
 imgbeddings==0.1.0
-matplotlib==3.10.0
+matplotlib==3.9.0
 networkx==2.8.7
 numpy==2.2.2
 pandas==2.2.3
