@@ -1,0 +1,13 @@
+pynndescent
+Pillow
+tqdm
+numpy
+torch
+torchvision
+imgbeddings
+scikit_learn
+matplotlib
+networkx
+scipy
+pandas
+plotly
