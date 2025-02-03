@@ -140,12 +140,6 @@ threadpoolctl==3.5.0
     # via scikit-learn
 tokenizers==0.21.0
     # via transformers
-torch==2.6.0
-    # via
-    #   -r requirements.in
-    #   torchvision
-torchvision==0.21.0
-    # via -r requirements.in
 tqdm==4.67.1
     # via
     #   -r requirements.in
@@ -164,3 +158,4 @@ urllib3==2.3.0
     # via requests
 zipp==3.21.0
     # via importlib-resources
+-r torchrequirements.txt

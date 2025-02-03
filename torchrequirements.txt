@@ -1,0 +1,8 @@
+--index-url https://download.pytorch.org/whl/cpu
+
+torch==2.6.0
+    # via
+    #   -r requirements.in
+    #   torchvision
+torchvision==0.21.0
+    # via -r requirements.in
