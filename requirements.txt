@@ -121,7 +121,7 @@ scipy==1.13.1
     #   scikit-learn
 six==1.17.0
     # via python-dateutil
-sympy==1.13.3
+sympy==1.13.1
     # via onnxruntime
 threadpoolctl==3.5.0
     # via scikit-learn
