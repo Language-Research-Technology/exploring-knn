@@ -144,5 +144,6 @@ urllib3==2.3.0
 zipp==3.21.0
     # via importlib-resources
 seaborn==0.13.2
+anywidget ==0.9.13
 
 -r torchrequirements.txt
