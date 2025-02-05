@@ -9,20 +9,20 @@ import torch
 class ImageDataset(Dataset):
     """Image dataset ."""
 
-    def __init__(self, image_filenames, root_dir, transform=None):
+    def __init__(self, pillow_images, image_filenames, transform=None):
         """
         Arguments:
+            pillow_images (list): a list of pillow Image objects (matching image_filenames)
             image_filenames (list): a list of image filenames.
-            root_dir (string): Directory with all the images.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
+        self.pillow_images = pillow_images
         self.filenames = image_filenames
-        self.root_dir = root_dir
         self.transform = transform
 
     def __len__(self):
-        return len(self.filenames)
+        return len(self.pillow_images)
 
     def __getitem__(self, idx):
 
@@ -31,15 +31,13 @@ class ImageDataset(Dataset):
         #! figure out indexing multiple?
 
         # print("TAKING INDEX", idx)
+        img = self.pillow_images[idx]
 
-        with Image.open(os.path.join(self.root_dir,
-                                     self.filenames[idx])) as img:
+        # Load an image
+        processed_img = img.convert("RGB")  # Ensure it's in RGB mode
 
-            # Load an image
-            processed_img = img.convert("RGB")  # Ensure it's in RGB mode
-
-            # Preprocess the image
-            if self.transform:
-                processed_img = self.transform(processed_img)
+        # Preprocess the image
+        if self.transform:
+            processed_img = self.transform(processed_img)
 
         return processed_img, self.filenames[idx]
