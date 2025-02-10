@@ -6,3 +6,5 @@ images_zip.zip
 images_zip_nested.zip
 images.zip
 memory_investigating.py
+output/*
+!output/.gitkeep
