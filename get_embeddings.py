@@ -41,6 +41,7 @@ def get_clip_embedding(image_zip, image_extensions):
     # want to feed it in batches
     # images = [Image.open(os.path.join(IMAGE_FOLDER, image_filename)) for image_filename in image_filenames] # try as generator
     # for
+    del imgzip
     ibed = imgbeddings()
     embedding = ibed.to_embeddings(pillow_images)
     # del images # save memory
