@@ -55,7 +55,7 @@ def get_html_rendering_details(embedding_name, image_zip, image_extensions,  num
 # regarding colour_map: If you are using above 20 clusters, try "viridis" or a similar continuous map
 # This lists the avaliable colormaps for the cluster colouring, recommended tab10 or tab20 for good colour differentiation
 # list(colormaps)
-def generate_html(nearest_neighbours_array, neighbours_distance_array, image_zip, image_extensions, diagram_data, cluster_labels, group_clusters=False, image_filepath="../images/", colour_map="tab20"):
+def generate_html(nearest_neighbours_array, neighbours_distance_array, image_zip, image_extensions, diagram_data, cluster_labels, group_clusters=False, colour_map="tab20"):
     """Generates string html file to display the images and relevant information.
     group_cluster options:
     - `False`: Sort by rank normally
