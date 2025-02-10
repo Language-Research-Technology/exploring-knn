@@ -1,4 +1,77 @@
-#
+
+import numpy as np
+# Force directed diagram #
+import networkx as nx
+from scipy.stats import gaussian_kde
+import pandas as pd
+import json
+from matplotlib import colormaps
+
+
+def get_position_df(nearest_neighbours_array, neighbours_distance_array):
+    # Create the graph
+    G = nx.Graph()
+    for i, neighbors in enumerate(nearest_neighbours_array):
+        for neighbor in neighbors:
+            if i != neighbor:  # Avoid self-loops
+                # add a very small number to prevent divide by 0, is there a better way to handle this?
+                weight = 1 / \
+                    ((neighbours_distance_array[i][np.where(
+                        nearest_neighbours_array[i] == neighbor)[0][0]])+1e-20)
+                G.add_edge(i, neighbor, weight=weight)
+
+    # Visualize the graph
+    # key value pair of index and position
+    # Use spring layout for positioning
+    pos = nx.spring_layout(G, iterations=100, seed=42, k=None, weight='weight')
+    # nx.draw(G, pos, with_labels=False, node_color='lightblue', node_size=100)
+    # nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'weight'))
+
+    del G
+
+    return pd.DataFrame(data={"index": list(pos.keys()), "x": np.array(list(pos.values()))[:, 0], "y": np.array(list(pos.values()))[:, 1]})
+
+# position_df = get_position_df(nearest_neighbours_array, neighbours_distance_array)
+
+
+def get_diagram_data(nearest_neighbours_array, neighbours_distance_array, cluster_labels, image_filenames, return_json=True):
+    position_df = get_position_df(
+        nearest_neighbours_array, neighbours_distance_array)
+
+    # Compute the KDE using scipy
+    kde = gaussian_kde([position_df['x'], position_df['y']])
+    grid = np.linspace(min(position_df['x'].min(), position_df['y'].min()),
+                       max(position_df['x'].max(), position_df['y'].max()),
+                       100)  # done this way to make square plot
+
+    X, Y = np.meshgrid(grid, grid)
+
+    # Evaluate the KDE on the grid
+    Z = kde(np.vstack([X.ravel(), Y.ravel()])).reshape(X.shape)
+
+    colours = [colormaps.get_cmap("tab20")(
+        value) for value in np.linspace(0, 1, len(set(cluster_labels)))]
+    colours = np.hstack(
+        (np.array(colours)[:, 0:3]*255, np.array(colours)[:, 3:4]))
+    rgba_colours = [
+        f"rgba({','.join(str(int(num)) for num in colours[label])})"
+        for label in cluster_labels
+    ]
+
+    diagram_data = {"grid": grid.tolist(),
+                    "Z": Z.tolist(),
+                    "x": position_df['x'].tolist(),
+                    "y": position_df['y'].tolist(),
+                    "index": position_df['index'].tolist(),
+                    "rgba_colours": rgba_colours,
+                    "image_filenames": image_filenames.tolist()}
+
+    if return_json:
+        return json.dumps(diagram_data)
+
+    return diagram_data
+
+
 # ? This is code you can add into main.ipynb to see some extra visualisations,
 # the reason these were removed from main.ipynb is as effectively the samne
 # visualisations can be seen in the export html files. (this code is the prototypes)
