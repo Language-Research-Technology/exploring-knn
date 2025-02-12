@@ -125,8 +125,6 @@ def generate_html(
         str: A string containing the HTML code for rendering the image visualization.
     """
 
-    plotly_data = ""
-
     imgzip = zipfile.ZipFile(image_zip)
     image_filenames = [name for name in imgzip.namelist(
     ) if name.endswith(image_extensions)]
@@ -158,9 +156,9 @@ def generate_html(
     image_filepath = "data:image/jpeg;base64,"
 
     # add plotly
-    response = requests.get("https://cdn.jsdelivr.net/npm/plotly.js-dist-min")
-    plotly_data = response.text
-    del response
+    # response = requests.get("https://cdn.jsdelivr.net/npm/plotly.js-dist-min")
+    # plotly_data = response.text
+    # del response
 
     count_neighbour_occurances_array = get_count_neighbour_occurances(
         nearest_neighbours_array)
@@ -269,12 +267,13 @@ def generate_html(
 
         cluster_text = ""
     with open("html_file_template.txt", 'r') as file:
-        return str(file.read()).format(
-            number_of_clusters=number_of_clusters,  # Replace with actual value
-            number_of_neighbours=number_of_neighbours,  # Replace with actual value
-            table_rows=table_rows,
-            data_json=diagram_data,
-            cluster_text=cluster_text,
-            image_path=image_filepath,
-            plotly_data=plotly_data,
-        )
+        with open("plotly_js.txt", 'r') as plotly_data:
+            return str(file.read()).format(
+                number_of_clusters=number_of_clusters,  # Replace with actual value
+                number_of_neighbours=number_of_neighbours,  # Replace with actual value
+                table_rows=table_rows,
+                data_json=diagram_data,
+                cluster_text=cluster_text,
+                image_path=image_filepath,
+                plotly_data=plotly_data.read(),
+            )
