@@ -10,3 +10,6 @@ memory_investigating.py
 output/*
 !output/.gitkeep
 kagglecatsanddogs_clean.zip
+__pycache__/
+*.pyc
+*.pyo
