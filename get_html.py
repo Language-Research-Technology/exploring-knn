@@ -24,41 +24,45 @@ from typing import Optional, Tuple, Union
 # This function is to allow you to refetch all the needed html rendering requirements for a given embedding
 def get_html_rendering_details(embedding_name: str,
                                image_zip: str,
-                               image_extensions: tuple[str],
+                               image_extensions: Tuple[str],
+                               image_ignore: Tuple[str],
                                number_of_neighbours: int = 10,
                                n_clusters: int = 10
                                ) -> Optional[Tuple[np.ndarray, np.ndarray, zipfile.ZipFile, str, str, np.ndarray]]:
     """
     Retrieves the necessary details for rendering the HTML visualization based on an embedding.
 
-    This function loads the image filenames from a zip file, matches them with the corresponding embedding files, 
-    and calculates the nearest neighbors and cluster labels. It also generates the diagram data for the 
+    This function loads image filenames from a zip file, matches them with corresponding embedding files, 
+    calculates the nearest neighbors and cluster labels, and generates the diagram data for the 
     force-directed graph.
 
-    Params:
-        - `embedding_name`: The name of the embedding (matching the files of the format 'image_embedding_{embedding_name}.npy' and 'image_filenames_{embedding_name}.npy').
-        - `image_zip`: The path to the zip file containing images.
-        - `image_extensions`: The extension(s) of the image files to load from the zip.
-        - `number_of_neighbours`: The number of nearest neighbors to compute. Default is 10.
-        - `n_clusters`: The number of clusters for the clustering algorithm. Default is 10.
+    Args:
+        embedding_name (str): The name of the embedding (matching the files of the format 
+            'image_embedding_{embedding_name}.npy' and 'image_filenames_{embedding_name}.npy').
+        image_zip (str): The path to the zip file containing images.
+        image_extensions (Tuple[str]): The extension(s) of the image files to load from the zip.
+        image_ignore (Tuple[str]): A tuple of filename prefixes to exclude from processing.
+        number_of_neighbours (int, optional): The number of nearest neighbors to compute. Defaults to 10.
+        n_clusters (int, optional): The number of clusters for the clustering algorithm. Defaults to 10.
 
     Returns:
-        - A tuple containing:
-            - `nearest_neighbours_array`: A 2D array of shape (n_samples, n_neighbours).
-            - `neighbours_distance_array`: A 2D array of shape (n_samples, n_neighbours).
-            - `image_zip`: The zip file object.
-            - `image_extensions`: The image extensions to match.
-            - `diagram_data`: JSON-encoded data for rendering the force-directed diagram.
-            - `cluster_labels`: Array of cluster labels.
-          If the embedding file cannot be found `None` will be returned.
+        Union[Tuple[np.ndarray, np.ndarray, zipfile.ZipFile, Tuple[str], str, np.ndarray], None]: 
+        A tuple containing:
+            - nearest_neighbours_array: A 2D array of shape (n_samples, n_neighbours).
+            - neighbours_distance_array: A 2D array of shape (n_samples, n_neighbours).
+            - image_zip: The zip file object.
+            - image_extensions: The image extensions to match.
+            - diagram_data: JSON-encoded data for rendering the force-directed diagram.
+            - cluster_labels: Array of cluster labels.
+        If the embedding file cannot be found, None will be returned.
     """
 
     # load the images for the zip file, check if the zip file matches the embedding file
     imgzip = zipfile.ZipFile(image_zip)
     # inflist = imgzip.infolist()
-    Image.open(imgzip.open(imgzip.namelist()[3]))
+    # Image.open(imgzip.open(imgzip.namelist()[3]))
     pillow_image_filenames = [name for name in imgzip.namelist(
-    ) if name.endswith(image_extensions)]
+    ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
 
     # pillow_images =
     try:
@@ -99,25 +103,26 @@ def generate_html(
     Generates an HTML string that visualizes the images and relevant information in a table format.
 
     This function renders a table of images, their nearest neighbors, and related statistics in an HTML format.
-    The images are displayed as resized base64 encoded strings, and the table is sorted based on the `group_clusters` option.
+    The images are displayed as resized base64 encoded strings, and the table is sorted based on the group_clusters option.
 
-    Params:
-        - `nearest_neighbours_array`: A 2D NumPy array containing the indices of the nearest neighbors for each image.
-        - `neighbours_distance_array`: A 2D NumPy array containing the distances to the nearest neighbors.
-        - `image_zip`: The path to the zip file containing images.
-        - `image_extensions`: The extension(s) of the image files to load from the zip.
-        - `diagram_data`: JSON-encoded diagram data, typically from `get_diagram_data`.
-        - `cluster_labels`: A 1D NumPy array of cluster labels corresponding to each image.
-        - `group_clusters`: A flag or string indicating how to group images (default is False). Options are:
-            - `False`: Sort by rank normally.
-            - `True`: Order by cluster label order.
-            - `"asc"`: Sort by ascending cluster size.
-            - `"desc"`: Sort by descending cluster size.
-            - `"rank"`: Sort by the highest ranked image in each cluster.
-        - `colour_map`: The name of the colormap to use for color differentiation between clusters (default is `"tab20"`).
+    Args:
+        nearest_neighbours_array (np.ndarray): A 2D NumPy array containing the indices of the nearest neighbors for each image.
+        neighbours_distance_array (np.ndarray): A 2D NumPy array containing the distances to the nearest neighbors.
+        image_zip (str): The path to the zip file containing images.
+        image_extensions (Tuple[str]): The extension(s) of the image files to load from the zip.
+        diagram_data (str): JSON-encoded diagram data, typically from get_diagram_data.
+        cluster_labels (np.ndarray): A 1D NumPy array of cluster labels corresponding to each image.
+        group_clusters (Union[bool, str], optional): A flag or string indicating how to group images (default is False). 
+            Options are:
+            - False: Sort by rank normally.
+            - True: Order by cluster label order.
+            - "asc": Sort by ascending cluster size.
+            - "desc": Sort by descending cluster size.
+            - "rank": Sort by the highest ranked image in each cluster.
+        colour_map (str, optional): The name of the colormap to use for color differentiation between clusters (default is "tab20").
 
     Returns:
-        - A string containing the HTML code for rendering the image visualization.
+        str: A string containing the HTML code for rendering the image visualization.
     """
 
     plotly_data = ""
@@ -147,7 +152,7 @@ def generate_html(
 
     diagram_data_dict = json.loads(diagram_data)
     diagram_data_dict['image_filenames'] = [get_resized_b64(
-        Image.open(imgzip.open(filename))) for filename in image_filenames]
+        Image.open(imgzip.open(filename)).convert("RGB")) for filename in image_filenames]
     diagram_data = json.dumps(diagram_data_dict)
     del diagram_data_dict
     image_filepath = "data:image/jpeg;base64,"

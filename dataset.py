@@ -5,32 +5,68 @@ from torch.utils.data import Dataset
 import torch
 import zipfile
 # print("Worker here")
+from typing import Tuple, Optional, Callable, Union
 
 
 class ImageDataset(Dataset):
-    """Image dataset ."""
+    """
+    A PyTorch Dataset for loading images from a zip archive.
 
-    def __init__(self, image_zip, image_extensions, transform=None):
+    This dataset reads images from a zip file, applies optional transformations,
+    and returns the processed images along with their filenames.
+
+    Attributes:
+        imgzip (zipfile.ZipFile): The opened zip file containing images.
+        name_list (List[str]): A list of image filenames that match the given extensions
+                               and are not ignored.
+        transform (Optional[Callable]): An optional transformation function to apply to images.
+    """
+
+    def __init__(self,
+                 image_zip: str,
+                 image_extensions: Tuple[str, ...],
+                 image_ignore: Tuple[str, ...],
+                 transform: Optional[Callable] = None):
         """
-        Arguments:
-            pillow_images (list): a list of pillow Image objects (matching image_filenames)
-            image_filenames (list): a list of image filenames.
-            transform (callable, optional): Optional transform to be applied
-                on a sample.
+        Initializes the ImageDataset.
+
+        Args:
+            image_zip (str): Path to the zip file containing images.
+            image_extensions (Tuple[str, ...]): A tuple of allowed image file extensions
+                                                (e.g., ('jpg', 'png')).
+            image_ignore (Tuple[str, ...]): A tuple of filename prefixes to exclude from processing.
+            transform (Optional[Callable], optional): A transformation function to apply to
+                                                      each image (e.g., torchvision transforms).
+                                                      Defaults to None.
         """
         # pillow_images = [Image.open(imgzip.open(image_filename)) for image_filename in name_list]
         imgzip = zipfile.ZipFile(image_zip)
 
         self.imgzip = imgzip
         self.name_list = [name for name in imgzip.namelist(
-        ) if name.endswith(image_extensions)]
+        ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
         self.transform = transform
 
-    def __len__(self):
+    def __len__(self) -> int:
+        """
+        Returns:
+            int: The total number of valid images in the dataset.
+        """
         return len(self.name_list)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: Union[int, torch.Tensor]) -> Tuple[Image.Image, str]:
+        """
+        Retrieves an image and its filename from the dataset.
 
+        Args:
+            idx (Union[int, torch.Tensor]): Index of the image in the dataset. 
+                                            If it's a tensor, it will be converted to a list.
+
+        Returns:
+            Tuple[Image.Image, str]: A tuple containing:
+                - The processed image (as a PIL Image or transformed version).
+                - The corresponding filename.
+        """
         if torch.is_tensor(idx):
             idx = idx.tolist()
         #! figure out indexing multiple?

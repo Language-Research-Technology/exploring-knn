@@ -16,28 +16,27 @@ def get_position_df(nearest_neighbours_array: np.ndarray,
                     k: float = None
                     ) -> pd.DataFrame:
     """
-    Returns a Pandas DataFrame with positional data for each image based on a 
-    force-directed diagram simulation.
+    Computes positions for each image based on a force-directed diagram simulation.
 
-    This function computes the positions of images in a 2D plane using a spring layout (force-directed graph) 
-    where nodes (images) are connected to their n nearest neighbours and repelled or attracted based on 
-    the nearest neighbour distances between them.
+    This function calculates the 2D positions of images using a spring layout (force-directed graph). 
+    The images are treated as nodes connected to their nearest neighbors, with forces applied 
+    to either repel or attract them based on their nearest neighbor distances.
 
-    Params:
-        - `nearest_neighbours_array`: A 2D NumPy array of shape (n_samples, n_neighbours), 
-          where the ith row contains the indices of the nearest neighbors for the ith sample.
-        - `neighbours_distance_array`: A 2D NumPy array of shape (n_samples, n_neighbours),
-          where the ith row contains the distances to the nearest neighbors for the ith sample.
-        - `iterations`: The maximum number of iterations for the spring simulation. Default is 100.
-        - `seed`: The random seed for the spring simulation. Default is 42.
-        - `k`: The optimal distance between nodes. If None, the distance is set to 1/sqrt(n) where n is the number of nodes. 
-          Increase this value to move nodes farther apart. Default is None.
+    Args:
+        nearest_neighbours_array (np.ndarray): A 2D NumPy array of shape (n_samples, n_neighbours), 
+            where the ith row contains the indices of the nearest neighbors for each sample.
+        neighbours_distance_array (np.ndarray): A 2D NumPy array of shape (n_samples, n_neighbours), 
+            where the ith row contains the distances to the nearest neighbors for each sample.
+        iterations (int, optional): The maximum number of iterations for the spring simulation. Defaults to 100.
+        seed (int, optional): The random seed for the spring simulation. Defaults to 42.
+        k (float, optional): The optimal distance between nodes. If None, the distance is set to 1/sqrt(n)
+            where n is the number of nodes. Defaults to None.
 
     Returns:
-        - `position_df`: A Pandas DataFrame with the following columns:
-            - `index`: The index of the image corresponding to the filename in `image_filenames`.
-            - `x`: The 'x' coordinate of the image in the force-directed diagram.
-            - `y`: The 'y' coordinate of the image in the force-directed diagram.
+        pd.DataFrame: A Pandas DataFrame containing the computed 2D positions of the images with the following columns:
+            - index: The index of the image corresponding to its filename.
+            - x: The 'x' coordinate of the image in the force-directed diagram.
+            - y: The 'y' coordinate of the image in the force-directed diagram.
     """
     # Create the graph
     G = nx.Graph()
@@ -75,29 +74,29 @@ def get_diagram_data(
     """
     Computes and returns the data required to visualize the force-directed diagram with kernel density estimation (KDE).
 
-    This function generates a force-directed layout of images based on their nearest neighbor distances and applies 
-    kernel density estimation (KDE) on the 2D positions of the images. It then generates color-coded cluster labels 
-    for each image, and prepares the data for visualization.
+    This function computes a force-directed layout of images based on their nearest neighbor distances, 
+    applies kernel density estimation (KDE) on the 2D positions of the images, and generates color-coded cluster 
+    labels for each image. It prepares the data for visualization, either as a dictionary or a JSON string.
 
-    Params:
-        - `nearest_neighbours_array`: A 2D NumPy array of shape (n_samples, n_neighbours),
-          where the ith row contains the indices of the nearest neighbors for the ith sample.
-        - `neighbours_distance_array`: A 2D NumPy array of shape (n_samples, n_neighbours),
-          where the ith row contains the distances to the nearest neighbors for the ith sample.
-        - `cluster_labels`: A 1D NumPy array of cluster labels corresponding to each image.
-        - `image_filenames`: A 1D NumPy array of image filenames corresponding to the images.
-        - `return_json`: If True, the function returns the diagram data as a JSON string. If False,
-         diagram_data is returned a as a dictionary. Default is True.
+    Args:
+        nearest_neighbours_array (np.ndarray): A 2D NumPy array of shape (n_samples, n_neighbours), 
+            where the ith row contains the indices of the nearest neighbors for each sample.
+        neighbours_distance_array (np.ndarray): A 2D NumPy array of shape (n_samples, n_neighbours), 
+            where the ith row contains the distances to the nearest neighbors for each sample.
+        cluster_labels (np.ndarray): A 1D NumPy array containing the cluster labels for each image.
+        image_filenames (np.ndarray): A 1D NumPy array containing the filenames of the images.
+        return_json (bool, optional): If True, the function returns the diagram data as a JSON string. 
+            If False, the function returns the data as a dictionary. Defaults to True.
 
     Returns:
-        - `diagram_data`: A dictionary or JSON string containing the following keys:
-            - `grid`: The grid values used for the KDE plot.
-            - `Z`: The KDE evaluation over the grid.
-            - `x`: The x-coordinates of the images in the diagram.
-            - `y`: The y-coordinates of the images in the diagram.
-            - `index`: The indices of the images.
-            - `rgba_colours`: A list of RGBA color values for each cluster label.
-            - `image_filenames`: A list of image filenames.
+        Union[dict, str]: A dictionary or JSON string containing the following keys:
+            - grid: The grid values used for the KDE plot.
+            - Z: The KDE evaluation over the grid.
+            - x: The x-coordinates of the images in the diagram.
+            - y: The y-coordinates of the images in the diagram.
+            - index: The indices of the images.
+            - rgba_colours: A list of RGBA color values for each cluster label.
+            - image_filenames: A list of image filenames.
     """
 
     position_df = get_position_df(
