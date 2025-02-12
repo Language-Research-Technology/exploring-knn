@@ -30,22 +30,60 @@ from imgbeddings import imgbeddings
 
 #     return embed
 
-def get_clip_embedding(image_zip, image_extensions):
+def get_clip_embedding(image_zip, image_extensions, batch_size=32):
+    """ 
+    A function to get clip embeddings.
+
+    Params:
+        - pillow_images: list of pillow Image objects.
+        - embedding_function: a function which takes in <class 'PIL.JpegImagePlugin.JpegImageFile'>
+        and returns a 1D array of floats (by defauly creates colour histogram).
+
+    Returns:
+        - embedding: list of embedding where the ith row in embedding.
+        corresponds to the ith image_filename in image_filenames.
+
+    """
+
+    # imgzip = zipfile.ZipFile(image_zip)
+    # # imgzip.namelist()
+    # name_list = [name for name in imgzip.namelist(
+    # ) if name.endswith(image_extensions)]
+    # # pillow_images = [Image.open(imgzip.open(image_filename))
+    # #                  for image_filename in name_list]
+    # # # want to feed it in batches
+    # # # images = [Image.open(os.path.join(IMAGE_FOLDER, image_filename)) for image_filename in image_filenames] # try as generator
+    # # # for
+    # del imgzip
+    # ibed = imgbeddings()
+    # embedding = ibed.to_embeddings(name_list)
+    # # del images # save memory
+    # return np.array(embedding), np.array(name_list)
+
+    # take 2 with batching
 
     imgzip = zipfile.ZipFile(image_zip)
     # imgzip.namelist()
     name_list = [name for name in imgzip.namelist(
     ) if name.endswith(image_extensions)]
-    pillow_images = [Image.open(imgzip.open(image_filename))
-                     for image_filename in name_list]
-    # want to feed it in batches
-    # images = [Image.open(os.path.join(IMAGE_FOLDER, image_filename)) for image_filename in image_filenames] # try as generator
-    # for
-    del imgzip
+
     ibed = imgbeddings()
-    embedding = ibed.to_embeddings(pillow_images)
-    # del images # save memory
-    return np.array(embedding), np.array(name_list)
+    # do first one
+    name_batch = name_list[0:batch_size]
+    pillow_batch = [Image.open(imgzip.open(image_filename))
+                    for image_filename in name_batch]
+    embeddings = np.array(ibed.to_embeddings(pillow_batch))
+
+    for i in tqdm(range(batch_size, len(name_list), batch_size)):
+        name_batch = name_list[i:i+batch_size]
+        pillow_batch = [Image.open(imgzip.open(image_filename))
+                        for image_filename in name_batch]
+        embedding = ibed.to_embeddings(pillow_batch)
+        # print(i, len(name_batch), len(pillow_batch), len(embedding), len(embeddings))
+        embeddings = np.concatenate((embeddings, embedding))
+        del name_batch, pillow_batch, embedding
+
+    return embeddings, np.array(name_list)
 
 
 #! look into different colour spaces with luminance
