@@ -6,9 +6,39 @@ from scipy.stats import gaussian_kde
 import pandas as pd
 import json
 from matplotlib import colormaps
+from typing import Union
 
 
-def get_position_df(nearest_neighbours_array, neighbours_distance_array):
+def get_position_df(nearest_neighbours_array: np.ndarray,
+                    neighbours_distance_array: np.ndarray,
+                    iterations: int = 100,
+                    seed: int = 42,
+                    k: float = None
+                    ) -> pd.DataFrame:
+    """
+    Returns a Pandas DataFrame with positional data for each image based on a 
+    force-directed diagram simulation.
+
+    This function computes the positions of images in a 2D plane using a spring layout (force-directed graph) 
+    where nodes (images) are connected to their n nearest neighbours and repelled or attracted based on 
+    the nearest neighbour distances between them.
+
+    Params:
+        - `nearest_neighbours_array`: A 2D NumPy array of shape (n_samples, n_neighbours), 
+          where the ith row contains the indices of the nearest neighbors for the ith sample.
+        - `neighbours_distance_array`: A 2D NumPy array of shape (n_samples, n_neighbours),
+          where the ith row contains the distances to the nearest neighbors for the ith sample.
+        - `iterations`: The maximum number of iterations for the spring simulation. Default is 100.
+        - `seed`: The random seed for the spring simulation. Default is 42.
+        - `k`: The optimal distance between nodes. If None, the distance is set to 1/sqrt(n) where n is the number of nodes. 
+          Increase this value to move nodes farther apart. Default is None.
+
+    Returns:
+        - `position_df`: A Pandas DataFrame with the following columns:
+            - `index`: The index of the image corresponding to the filename in `image_filenames`.
+            - `x`: The 'x' coordinate of the image in the force-directed diagram.
+            - `y`: The 'y' coordinate of the image in the force-directed diagram.
+    """
     # Create the graph
     G = nx.Graph()
     for i, neighbors in enumerate(nearest_neighbours_array):
@@ -23,7 +53,8 @@ def get_position_df(nearest_neighbours_array, neighbours_distance_array):
     # Visualize the graph
     # key value pair of index and position
     # Use spring layout for positioning
-    pos = nx.spring_layout(G, iterations=100, seed=42, k=None, weight='weight')
+    pos = nx.spring_layout(G, iterations=iterations,
+                           seed=seed, k=k, weight='weight')
     # nx.draw(G, pos, with_labels=False, node_color='lightblue', node_size=100)
     # nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'weight'))
 
@@ -34,7 +65,41 @@ def get_position_df(nearest_neighbours_array, neighbours_distance_array):
 # position_df = get_position_df(nearest_neighbours_array, neighbours_distance_array)
 
 
-def get_diagram_data(nearest_neighbours_array, neighbours_distance_array, cluster_labels, image_filenames, return_json=True):
+def get_diagram_data(
+        nearest_neighbours_array: np.ndarray,
+        neighbours_distance_array: np.ndarray,
+        cluster_labels: np.ndarray,
+        image_filenames: np.ndarray[str],
+        return_json: bool = True
+) -> Union[str, dict]:
+    """
+    Computes and returns the data required to visualize the force-directed diagram with kernel density estimation (KDE).
+
+    This function generates a force-directed layout of images based on their nearest neighbor distances and applies 
+    kernel density estimation (KDE) on the 2D positions of the images. It then generates color-coded cluster labels 
+    for each image, and prepares the data for visualization.
+
+    Params:
+        - `nearest_neighbours_array`: A 2D NumPy array of shape (n_samples, n_neighbours),
+          where the ith row contains the indices of the nearest neighbors for the ith sample.
+        - `neighbours_distance_array`: A 2D NumPy array of shape (n_samples, n_neighbours),
+          where the ith row contains the distances to the nearest neighbors for the ith sample.
+        - `cluster_labels`: A 1D NumPy array of cluster labels corresponding to each image.
+        - `image_filenames`: A 1D NumPy array of image filenames corresponding to the images.
+        - `return_json`: If True, the function returns the diagram data as a JSON string. If False,
+         diagram_data is returned a as a dictionary. Default is True.
+
+    Returns:
+        - `diagram_data`: A dictionary or JSON string containing the following keys:
+            - `grid`: The grid values used for the KDE plot.
+            - `Z`: The KDE evaluation over the grid.
+            - `x`: The x-coordinates of the images in the diagram.
+            - `y`: The y-coordinates of the images in the diagram.
+            - `index`: The indices of the images.
+            - `rgba_colours`: A list of RGBA color values for each cluster label.
+            - `image_filenames`: A list of image filenames.
+    """
+
     position_df = get_position_df(
         nearest_neighbours_array, neighbours_distance_array)
 

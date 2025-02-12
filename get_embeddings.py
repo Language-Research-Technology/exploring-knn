@@ -10,6 +10,9 @@ import torch
 # Clip ## # Meta clip
 # ensure using huggingface-hub v0.25.0 or earlier to prevent import issue
 from imgbeddings import imgbeddings
+from torch.utils.data import DataLoader
+import torchvision
+from typing import Tuple, Callable
 
 
 ### Basic no batch embedding ###
@@ -30,21 +33,21 @@ from imgbeddings import imgbeddings
 
 #     return embed
 
-def get_clip_embedding(image_zip, image_extensions, batch_size=32):
+def get_clip_embedding(image_zip: str, image_extensions: tuple[str], batch_size: int = 32) -> Tuple[np.ndarray, np.ndarray]:
     """ 
-    A function to get clip embeddings.
+    A function to get CLIP embeddings in batches.
 
     Params:
-        - pillow_images: list of pillow Image objects.
-        - embedding_function: a function which takes in <class 'PIL.JpegImagePlugin.JpegImageFile'>
-        and returns a 1D array of floats (by defauly creates colour histogram).
+        - `image_zip`: Path to the zip file containing all images, e.g., "./images.zip".
+        - `image_extensions`: A tuple of image file extensions you want to include (e.g., ('jpg',)).
+        - `batch_size`: Integer size of the image batches.
 
     Returns:
-        - embedding: list of embedding where the ith row in embedding.
-        corresponds to the ith image_filename in image_filenames.
-
+        - `embedding`: A NumPy array of CLIP embeddings where the ith row corresponds to 
+          the ith image_filename in `image_filenames`.
+        - `image_filenames`: A NumPy array of image filenames.
     """
-
+    # without batching
     # imgzip = zipfile.ZipFile(image_zip)
     # # imgzip.namelist()
     # name_list = [name for name in imgzip.namelist(
@@ -88,8 +91,16 @@ def get_clip_embedding(image_zip, image_extensions, batch_size=32):
 
 #! look into different colour spaces with luminance
 #! integrate scikit image
-def get_normalised_histogram(img):
-    """Returns a pixel standardised pillow colour histogram array."""
+def get_normalised_histogram(img: Image.Image) -> np.ndarray:
+    """ 
+    Returns a pixel-standardized Pillow color histogram array from a Pillow image.
+
+    Params:
+        - `img`: A Pillow image object.
+
+    Returns:
+        - `np.ndarray`: A NumPy array representing the normalized histogram of the image.
+    """
     w, h = img.size
     pixels = w*h
     return np.array(img.histogram())/pixels
@@ -97,19 +108,25 @@ def get_normalised_histogram(img):
 # embedding_function takes a batch of images, get_embedding takes batch_size=
 
 
-def get_embedding(image_zip, image_extensions, embedding_function=get_normalised_histogram) -> "[embedding_function(img_0),...]":
+def get_embedding(image_zip: str,
+                  image_extensions: Tuple[str],
+                  embedding_function: Callable[[
+                      Image.Image], np.ndarray] = get_normalised_histogram
+                  ) -> Tuple[np.ndarray, np.ndarray]:
     """ 
-    A function to get embeddings, this does not work well for intensive embeddings which benefit from batching.
+    A function to get embeddings using a user-defined embedding function.
+
+    This method does not work well for intensive embeddings that benefit from batching.
 
     Params:
-        - pillow_images: list of pillow Image objects.
-        - embedding_function: a function which takes in <class 'PIL.JpegImagePlugin.JpegImageFile'>
-        and returns a 1D array of floats (by defauly creates colour histogram).
+        - `image_zip`: Path to the zip file containing all images (e.g., "./images.zip").
+        - `image_extensions`: A tuple containing image file extensions you want to include (e.g., ('jpg',)).
+        - `embedding_function`: A function which takes in a Pillow image and returns a 1D array of embeddings.
 
     Returns:
-        - embedding: list of embedding where the ith row in embedding.
-        corresponds to the ith image_filename in image_filenames.
-
+        - `embedding`: A NumPy array of embeddings where the ith row corresponds to 
+          the ith image_filename in `image_filenames`.
+        - `image_filenames`: A NumPy array of image filenames.
     """
     imgzip = zipfile.ZipFile(image_zip)
 
@@ -133,7 +150,21 @@ def get_embedding(image_zip, image_extensions, embedding_function=get_normalised
 ### Batch embedding ###
 
 # = models.vgg16(weights=models.VGG16_Weights.DEFAULT).to("cpu")):
-def get_embeddings_pytorch(dataloader, pytorch_model):
+def get_embeddings_pytorch(dataloader: DataLoader, pytorch_model: torchvision.models) -> tuple[np.ndarray, np.ndarray]:
+    """ 
+    A function to get embeddings on a PyTorch dataset from a PyTorch model, 
+    processes the data in batches as specified by the dataloader.
+
+    Params:
+        - `dataloader`: A PyTorch DataLoader object that provides batches of images and corresponding filenames.
+        - `pytorch_model`: A PyTorch model used to compute the embeddings (or predictions).
+
+    Returns:
+        - `embedding`: A NumPy array of embeddings, where each row corresponds to 
+          the embeddings of an individual image in the batch.
+        - `image_filenames`: A NumPy array of filenames corresponding to the images in the batches.
+    """
+
     pytorch_model.eval()  # optimization (disable unneeded things)
     torch.set_grad_enabled(False)  # optimization (disable unneeded things)
 
