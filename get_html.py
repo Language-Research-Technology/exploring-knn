@@ -266,8 +266,8 @@ def generate_html(
             table_rows += generate_html_image_module(idx, rank+1)
 
         cluster_text = ""
-    with open("html_file_template.txt", 'r') as file:
-        with open("plotly_js.txt", 'r') as plotly_data:
+    with open("./html_text/html_file_template.txt", 'r') as file:
+        with open("./html_text/plotly_js.txt", 'r') as plotly_data:
             return str(file.read()).format(
                 number_of_clusters=number_of_clusters,  # Replace with actual value
                 number_of_neighbours=number_of_neighbours,  # Replace with actual value
