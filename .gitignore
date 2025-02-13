@@ -13,3 +13,4 @@ kagglecatsanddogs_clean.zip
 __pycache__/
 *.pyc
 *.pyo
+observations.md
