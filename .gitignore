@@ -9,6 +9,8 @@ images.zip
 memory_investigating.py
 output/*
 !output/.gitkeep
+input/*
+!input/.gitkeep
 kagglecatsanddogs_clean.zip
 __pycache__/
 *.pyc
