@@ -28,7 +28,7 @@ def get_html_rendering_details(embedding_name: str,
                                image_ignore: Tuple[str],
                                number_of_neighbours: int = 10,
                                n_clusters: int = 10
-                               ) -> Optional[Tuple[np.ndarray, np.ndarray, zipfile.ZipFile, str, str, np.ndarray]]:
+                               ) -> Optional[Tuple[np.ndarray, np.ndarray, str, Tuple[str], Tuple[str], str, np.ndarray]]:
     """
     Retrieves the necessary details for rendering the HTML visualization based on an embedding.
 
@@ -52,6 +52,7 @@ def get_html_rendering_details(embedding_name: str,
             - neighbours_distance_array: A 2D array of shape (n_samples, n_neighbours).
             - image_zip: The zip file object.
             - image_extensions: The image extensions to match.
+            - image_ignore: The excluded filename prefixes to match.
             - diagram_data: JSON-encoded data for rendering the force-directed diagram.
             - cluster_labels: Array of cluster labels.
         If the embedding file cannot be found, None will be returned.
@@ -83,7 +84,7 @@ def get_html_rendering_details(embedding_name: str,
     diagram_data = get_diagram_data(nearest_neighbours_array, neighbours_distance_array,
                                     cluster_labels, embedding_image_filenames, return_json=True)
 
-    return nearest_neighbours_array, neighbours_distance_array, image_zip, image_extensions, diagram_data, cluster_labels
+    return nearest_neighbours_array, neighbours_distance_array, image_zip, image_extensions, image_ignore, diagram_data, cluster_labels
 
 
 # regarding colour_map: If you are using above 20 clusters, try "viridis" or a similar continuous map
@@ -93,7 +94,8 @@ def generate_html(
     nearest_neighbours_array: np.ndarray,
     neighbours_distance_array: np.ndarray,
     image_zip: str,
-    image_extensions: str,
+    image_extensions: Tuple[str],
+    image_ignore: Tuple[str],
     diagram_data: str,
     cluster_labels: np.ndarray,
     group_clusters: Union[bool, str] = False,
@@ -110,6 +112,7 @@ def generate_html(
         neighbours_distance_array (np.ndarray): A 2D NumPy array containing the distances to the nearest neighbors.
         image_zip (str): The path to the zip file containing images.
         image_extensions (Tuple[str]): The extension(s) of the image files to load from the zip.
+        image_ignore (Tuple[str]): A tuple of filename prefixes to exclude from processing.
         diagram_data (str): JSON-encoded diagram data, typically from get_diagram_data.
         cluster_labels (np.ndarray): A 1D NumPy array of cluster labels corresponding to each image.
         group_clusters (Union[bool, str], optional): A flag or string indicating how to group images (default is False). 
@@ -127,7 +130,7 @@ def generate_html(
 
     imgzip = zipfile.ZipFile(image_zip)
     image_filenames = [name for name in imgzip.namelist(
-    ) if name.endswith(image_extensions)]
+    ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
 
     # make it so that instead of image src pointing to an image, it contains the image
 
