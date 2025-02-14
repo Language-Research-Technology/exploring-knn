@@ -138,7 +138,9 @@ def get_diagram_data(
 
 # ? This is code you can add into main.ipynb to see some extra visualisations,
 # the reason these were removed from main.ipynb is as effectively the samne
-# visualisations can be seen in the export html files. (this code is the prototypes)
+# visualisations can be seen in the export html files. (the two following code examples are the prototypes)
+
+# 1. interactive diagram
 
 
 # # Compute the KDE using scipy
@@ -291,7 +293,7 @@ def get_diagram_data(
 
 # fig
 
-#! Diagram for each cluster
+# 2. Diagram for each cluster
 
 
 # subplot_rows = 5
