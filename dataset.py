@@ -4,7 +4,6 @@ from PIL import Image
 from torch.utils.data import Dataset
 import torch
 import zipfile
-# print("Worker here")
 from typing import Tuple, Optional, Callable, Union
 
 
