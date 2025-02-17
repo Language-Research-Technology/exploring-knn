@@ -6,7 +6,7 @@ authors:
     orcid: https://orcid.org/0000-0002-1824-2361
   - family-names: Chong
     given-names: Jasper
-title: "Exploring KNN for Visualisations of Large Image Datasets"
+title: "Exploring Large Image Datasets with Image Embeddings"
 version: 1.0.0
 identifiers:
   - type: 
