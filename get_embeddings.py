@@ -70,26 +70,26 @@ def get_clip_embedding(image_zip: str, image_extensions: tuple[str], image_ignor
 
     # take 2 with batching
 
-    imgzip = zipfile.ZipFile(image_zip)
-    # imgzip.namelist()
-    name_list = [name for name in imgzip.namelist(
-    ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
+    with zipfile.ZipFile(image_zip) as imgzip:
+        # imgzip.namelist()
+        name_list = [name for name in imgzip.namelist(
+        ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
 
-    ibed = imgbeddings()
-    # do first one
-    name_batch = name_list[0:batch_size]
-    pillow_batch = [Image.open(imgzip.open(image_filename)).convert('RGB')
-                    for image_filename in name_batch]
-    embeddings = np.array(ibed.to_embeddings(pillow_batch))
-
-    for i in tqdm(range(batch_size, len(name_list), batch_size)):
-        name_batch = name_list[i:i+batch_size]
-        pillow_batch = [Image.open(imgzip.open(image_filename))
+        ibed = imgbeddings()
+        # do first one
+        name_batch = name_list[0:batch_size]
+        pillow_batch = [Image.open(imgzip.open(image_filename)).convert('RGB')
                         for image_filename in name_batch]
-        embedding = ibed.to_embeddings(pillow_batch)
-        # print(i, len(name_batch), len(pillow_batch), len(embedding), len(embeddings))
-        embeddings = np.concatenate((embeddings, embedding))
-        del name_batch, pillow_batch, embedding
+        embeddings = np.array(ibed.to_embeddings(pillow_batch))
+
+        for i in tqdm(range(batch_size, len(name_list), batch_size)):
+            name_batch = name_list[i:i+batch_size]
+            pillow_batch = [Image.open(imgzip.open(image_filename))
+                            for image_filename in name_batch]
+            embedding = ibed.to_embeddings(pillow_batch)
+            # print(i, len(name_batch), len(pillow_batch), len(embedding), len(embeddings))
+            embeddings = np.concatenate((embeddings, embedding))
+            del name_batch, pillow_batch, embedding
 
     return embeddings, np.array(name_list)
 
@@ -145,24 +145,23 @@ def get_embedding(image_zip: str,
             - np.ndarray: A NumPy array of embeddings, where each row corresponds to an image.
             - np.ndarray: A NumPy array of image filenames in the same order as embeddings.
     """
+    with zipfile.ZipFile(image_zip) as imgzip:
 
-    imgzip = zipfile.ZipFile(image_zip)
+        name_list = [name for name in imgzip.namelist(
+        ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
 
-    name_list = [name for name in imgzip.namelist(
-    ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
+        def process_image(image_filename):
 
-    def process_image(image_filename):
+            with Image.open(imgzip.open(image_filename)) as img:
+                # add the embedding of the image to the given function
+                return embedding_function(img.convert('RGB'))
 
-        with Image.open(imgzip.open(image_filename)) as img:
-            # add the embedding of the image to the given function
-            return embedding_function(img.convert('RGB'))
+        with ThreadPoolExecutor() as executor:
+            embedding = list(
+                tqdm(executor.map(process_image, name_list), total=len(name_list)))
 
-    with ThreadPoolExecutor() as executor:
-        embedding = list(
-            tqdm(executor.map(process_image, name_list), total=len(name_list)))
-
-    # tqdm does not work without the list()
-    return np.array(embedding), np.array(name_list)
+        # tqdm does not work without the list()
+        return np.array(embedding), np.array(name_list)
 
 
 ### Batch embedding ###

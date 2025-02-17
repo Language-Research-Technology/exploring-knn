@@ -59,11 +59,9 @@ def get_html_rendering_details(embedding_name: str,
     """
 
     # load the images for the zip file, check if the zip file matches the embedding file
-    imgzip = zipfile.ZipFile(image_zip)
-    # inflist = imgzip.infolist()
-    # Image.open(imgzip.open(imgzip.namelist()[3]))
-    pillow_image_filenames = [name for name in imgzip.namelist(
-    ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
+    with zipfile.ZipFile(image_zip) as imgzip:
+        pillow_image_filenames = [name for name in imgzip.namelist(
+        ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
 
     # pillow_images =
     try:
@@ -71,7 +69,7 @@ def get_html_rendering_details(embedding_name: str,
         embedding_image_filenames = np.load(
             f"./output/image_filenames_{embedding_name}.npy")
     except:
-        print('Embeddings not saved. ')  # ! todo make it render?
+        print(f'Embeddings not saved/matching for {embedding_name}.')
         return
 
     if any(embedding_image_filenames != pillow_image_filenames):
@@ -155,7 +153,8 @@ def generate_html(
     diagram_data_dict['image_filenames'] = [get_resized_b64(
         Image.open(imgzip.open(filename)).convert("RGB")) for filename in image_filenames]
     diagram_data = json.dumps(diagram_data_dict)
-    del diagram_data_dict
+    imgzip.close()
+    del diagram_data_dict, imgzip
     image_filepath = "data:image/jpeg;base64,"
 
     # add plotly
@@ -280,3 +279,14 @@ def generate_html(
                 image_path=image_filepath,
                 plotly_data=plotly_data.read(),
             )
+
+# original implementation for getting html
+
+# diagram_data = get_diagram_data(nearest_neighbours_array, neighbours_distance_array, cluster_labels, image_filenames, return_json=True)
+
+# html_file = generate_html(nearest_neighbours_array, neighbours_distance_array, IMAGE_ZIP, IMAGE_EXTENSIONS, IMAGE_IGNORE, diagram_data, cluster_labels, group_clusters=group_clusters, colour_map=colour_map)
+
+# with open("./output/output.html",'w') as file:
+#     file.write(html_file)
+
+# del html_file, diagram_data, file

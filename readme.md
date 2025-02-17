@@ -6,7 +6,10 @@ The purpose of this notebook is to provide options for exploring large image dat
 This notebook ingests a zip file containing images, and returns a HTML file (giving options for visual exploration of the dataset), and provides some basic visualisations.
 
 ADD ACKNOWLEDGEMENTS (also to notebook)
-- Centre for Digital Cultures and Societies (get logo from Jess)
+- Centre for Digital Cultures and Societies
+
+        <img src="./resources/DCS_LOGO.jpg" alt="DCS LOGO" width="250"/>
+
 - Language Data Commons of Australia (get logo)
 - 
 
