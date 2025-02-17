@@ -39,11 +39,11 @@ class ImageDataset(Dataset):
                                                       Defaults to None.
         """
         # pillow_images = [Image.open(imgzip.open(image_filename)) for image_filename in name_list]
-        with zipfile.ZipFile(image_zip) as imgzip:
+        imgzip = zipfile.ZipFile(image_zip)
 
-            self.imgzip = imgzip
-            self.name_list = [name for name in imgzip.namelist(
-            ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
+        self.imgzip = imgzip
+        self.name_list = [name for name in imgzip.namelist(
+        ) if name.endswith(image_extensions) and not name.split("/")[-1].startswith(image_ignore)]
         self.transform = transform
 
     def __len__(self) -> int:
