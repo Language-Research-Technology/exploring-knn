@@ -96,14 +96,27 @@
         <li>Search for image indices/clusters as described above.</li>
         <li>Compare this document's look with different embeddings.</li>
         <li>Compare this document's look with different amounts of nearest neighbours + clusters.</li>
+        <li>Explore the general theme of the clusters (from setting <code>group_clusters</code> to not <code>False</code>)</li>
+        <li><strong>Explore the 'arms' and 'clusters' in the force directed diagram.</li></strong> <ul>
+          <li>
+            Using the selection tool in the notebook to see if there are themes to arms and clusters
+          </li>
+          <li>
+            Compare how these themes differ to the cluster themes 
+          </li>
+          <li>
+            What sort of images appear in the main hotspots?
+          </li>
+        </ul>
+      </li>
         <li>
             <strong>Group by Cluster</strong>
             <ul>
                 <li>Size of cluster (<code>asc</code>/<code>desc</code>)</li>
                 <li>Highest rank in cluster.</li>
+                <li>Cluster label order.</li>
             </ul>
         </li>
-        <li><strong>Encode data into HTML document</strong> (increases size but allows it to be used standalone).</li>
     </ul>
     <hr />
     <div style="display: flex;">
