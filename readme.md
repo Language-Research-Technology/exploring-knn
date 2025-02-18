@@ -5,7 +5,7 @@ The purpose of this notebook is to provide options for exploring large image dat
 
 This notebook ingests a zip file containing images, and returns a HTML file (giving options for visual exploration of the dataset), and provides some basic visualisations.
 
-Acknowledgements:
+## Acknowledgements:
 - Centre for Digital Cultures and Societies
 
         <img src="./resources/DCS_LOGO.jpg" alt="DCS LOGO" width="250"/>
@@ -14,7 +14,7 @@ Acknowledgements:
 
         <img src="./resources/ldaca_logo.png" alt="DCS LOGO" width="250"/>
 
-Bibliography:
+## Bibliography:
 
 A. Radford et al. (2021). Learning Transferable Visual Models From Natural Language Supervision. *OpenAI*. https://arxiv.org/pdf/2103.00020
 
