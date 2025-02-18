@@ -14,6 +14,11 @@ Acknowledgements:
 
         <img src="./resources/ldaca_logo.png" alt="DCS LOGO" width="250"/>
 
+Bibliography:
 
-https://zbib.org/
-grab the links 
+J. Burgess et al. (2021). Critical simulation as hybrid digital method for exploring the data operations and vernacular cultures of visual social media platforms. https://osf.io/preprints/socarxiv/2cwsu_v1
+
+A. Radford et al. (2021). Learning Transferable Visual Models From Natural Language Supervision. *OpenAI*. https://arxiv.org/pdf/2103.00020
+
+Brankica Bratić, Michael E. Houle, Vladimir Kurbalija, Vincent Oria, and Miloš Radovanović. 2018. NN-Descent on High-Dimensional Data. In *WIMS’18: 8th International Conference on Web Intelligence, Mining and Semantics, June 25–27, 2018, Novi Sad, Serbia*. ACM, New York, NY, USA, 8 pages.
+https://doi.org/10.1145/3227609.3227643
