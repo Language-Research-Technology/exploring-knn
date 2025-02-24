@@ -7,12 +7,14 @@ This notebook ingests a zip file containing images, and returns a HTML file (giv
 
 ## Acknowledgements:
 - Centre for Digital Cultures and Societies
-
-        <img src="./resources/DCS_LOGO.jpg" alt="DCS LOGO" width="250"/>
+        <p>
+        <img src="./resources/DCS_LOGO.jpg" alt="DCS LOGO" width="250">
+        </p>
 
 - Language Data Commons of Australia
-
-        <img src="./resources/ldaca_logo.png" alt="DCS LOGO" width="250"/>
+        <p>
+        <img src="./resources/ldaca_logo.png" alt="DCS LOGO" width="250">
+        </p>
 
 ## Bibliography:
 
