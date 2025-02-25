@@ -1,5 +1,5 @@
 # Exploring Large Image Datasets with Image Embeddings
-[![Binder](https://binderhub.rc.nectar.org.au/badge_logo.svg)](https://binderhub.atap-binder.cloud.edu.au/v2/gh/Language-Research-Technology/exploring-knn/HEAD?labpath=.%2Fmain.ipynb)
+[![Binder](https://binderhub.rc.nectar.org.au/badge_logo.svg)](https://binderhub.atap-binder.cloud.edu.au/v2/gh/Language-Research-Technology/image-dataset-explorer/HEAD?labpath=.%2Fmain.ipynb)
 
 The purpose of this notebook is to provide options for exploring large image datasets, through use of K nearest neighbour graphs and other methods. It aims to be a base for further development in future.
 
